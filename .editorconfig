@@ -1,0 +1,76 @@
+[*.cs]
+
+# IDE0079: Remove unnecessary suppression
+dotnet_diagnostic.IDE0079.severity = none
+
+# CS1574: XML comment has cref attribute that could not be resolved
+dotnet_diagnostic.CS1574.severity = none
+
+# CA1050: Declare types in namespaces
+dotnet_diagnostic.CA1050.severity = none
+
+# SYSLIB1045: Convert to 'GeneratedRegexAttribute'.
+dotnet_diagnostic.SYSLIB1045.severity = silent
+
+# CS8500: This takes the address of, gets the size of, or declares a pointer to a managed type
+dotnet_diagnostic.CS8500.severity = none
+
+# IDE0022: Use block body for method
+dotnet_diagnostic.IDE0022.severity = none
+
+# xUnit1004: Test methods should not be skipped
+dotnet_diagnostic.xUnit1004.severity = none
+
+# IDE0290: Use primary constructor
+dotnet_diagnostic.IDE0290.severity = silent
+
+# IDE0305: Use collection expression for fluent
+dotnet_diagnostic.IDE0305.severity = silent
+
+# CA1873: Avoid potentially expensive logging
+dotnet_diagnostic.CA1873.severity = none
+
+# CA1835: Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
+dotnet_diagnostic.CA1835.severity = none
+
+# IDE0200: Convert lambda expression to method group
+dotnet_diagnostic.IDE0200.severity = silent
+
+# IDE0048: Add parentheses for clarity
+dotnet_diagnostic.IDE0048.severity = none
+
+# CA1861: Avoid constant arrays as arguments
+dotnet_diagnostic.CA1861.severity = silent
+
+# IDE0011: Add braces
+dotnet_diagnostic.IDE0011.severity = none
+
+# CA1859: Use concrete types when possible for improved performance
+dotnet_diagnostic.CA1859.severity = silent
+
+# IDE0060: Remove unused parameter
+dotnet_diagnostic.IDE0060.severity = none
+
+# IDE0270: Use coalesce expression
+dotnet_diagnostic.IDE0270.severity = silent
+
+# IDE0320: Make anonymous function static
+dotnet_diagnostic.IDE0320.severity = silent
+
+# IDE0008: Use explicit type instead of 'var'
+dotnet_diagnostic.IDE0008.severity = none
+
+# IDE0028: Use collection expression
+dotnet_diagnostic.IDE0028.severity = silent
+
+# IDE0306: Use collection expression for new
+dotnet_diagnostic.IDE0306.severity = silent
+
+# CS8763: A method marked [DoesNotReturn] should not return.
+dotnet_diagnostic.CS8763.severity = none
+
+# CA1826: Use property instead of Linq Enumerable method
+dotnet_code_quality.CA1826.exclude_ordefault_methods = true
+
+# IDE0120: Simplify LINQ expression
+dotnet_diagnostic.IDE0120.severity = silent

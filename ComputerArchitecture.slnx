@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ComputerArchitecture.Mano/ComputerArchitecture.Mano.csproj" />
+    <Project Path="src/ComputerArchitecture.Mano.Cli/ComputerArchitecture.Mano.Cli.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/ComputerArchitecture.Mano.Tests/ComputerArchitecture.Mano.Tests.csproj" />
+  </Folder>
+</Solution>
