@@ -6,9 +6,12 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
-    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
     <ProjectReference Include="../../src/ComputerArchitecture.Mano/ComputerArchitecture.Mano.csproj" />
     <ProjectReference Include="../../src/ComputerArchitecture.Mano.Cli/ComputerArchitecture.Mano.Cli.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
-  <ItemGroup><None Update="Fixtures/**/*.asm" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup>
+    <None Update="Fixtures/**/*.asm" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
