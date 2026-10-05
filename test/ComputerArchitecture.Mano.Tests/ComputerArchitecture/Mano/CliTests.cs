@@ -14,7 +14,7 @@ public sealed class CliTests
     [InlineData("infinite-loop.asm", "", 2, "StepLimit:")]
     public async Task RunsAssemblyThroughRealCli(string fixture, string input, int code, string expected)
     {
-        var arguments = new List<string> { Path.Combine(AppContext.BaseDirectory, "Fixtures", fixture),
+        var arguments = new List<string> { Path.Combine(Directories.TestData.FullName, fixture),
             "--max-steps", "2000", "--input", input };
         if (fixture == "interrupt-input.asm") arguments.Add("--output-not-ready");
         var result = await RunCli(arguments.ToArray());
@@ -26,7 +26,7 @@ public sealed class CliTests
     [Fact]
     public async Task UnservicedOutputFlagKeepsRequestingInterrupts()
     {
-        var result = await RunCli(Path.Combine(AppContext.BaseDirectory, "Fixtures", "interrupt-input.asm"),
+        var result = await RunCli(Path.Combine(Directories.TestData.FullName, "interrupt-input.asm"),
             "--input", "q", "--max-steps", "1000");
         Assert.Equal(2, result.Code);
         Assert.Contains("StepLimit:", result.Output);
@@ -35,7 +35,7 @@ public sealed class CliTests
     [Fact]
     public async Task MalformedSourceReportsLineAndFailureExitCode()
     {
-        var result = await RunCli(Path.Combine(AppContext.BaseDirectory, "Fixtures", "invalid-source.asm"));
+        var result = await RunCli(Path.Combine(Directories.TestData.FullName, "invalid-source.asm"));
         Assert.Equal(1, result.Code);
         Assert.Contains("Line 2:", result.Error);
     }
@@ -43,7 +43,7 @@ public sealed class CliTests
     [Fact]
     public async Task RawByteInputAndTraceAreAvailable()
     {
-        var result = await RunCli(Path.Combine(AppContext.BaseDirectory, "Fixtures", "polling-echo.asm"),
+        var result = await RunCli(Path.Combine(Directories.TestData.FullName, "polling-echo.asm"),
             "--input-hex", "00FF71", "--trace");
         Assert.Equal(0, result.Code);
         Assert.Contains("Output hex: 00FF71", result.Output);
@@ -58,7 +58,7 @@ public sealed class CliTests
     [InlineData("--unknown", "value")]
     public async Task InvalidOptionsReturnFailure(string option, string value)
     {
-        var result = await RunCli(Path.Combine(AppContext.BaseDirectory, "Fixtures", "population-count.asm"), option, value);
+        var result = await RunCli(Path.Combine(Directories.TestData.FullName, "population-count.asm"), option, value);
         Assert.Equal(1, result.Code);
         Assert.NotEmpty(result.Error);
     }

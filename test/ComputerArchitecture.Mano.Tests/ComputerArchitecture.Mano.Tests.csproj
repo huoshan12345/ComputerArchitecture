@@ -11,7 +11,4 @@
     <ProjectReference Include="../../src/ComputerArchitecture.Mano/ComputerArchitecture.Mano.csproj" />
     <ProjectReference Include="../../src/ComputerArchitecture.Mano.Cli/ComputerArchitecture.Mano.Cli.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="Fixtures/**/*.asm" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 </Project>

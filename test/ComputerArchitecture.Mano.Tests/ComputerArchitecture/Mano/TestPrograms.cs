@@ -3,7 +3,7 @@ namespace ComputerArchitecture.Mano;
 internal static class TestPrograms
 {
     internal static AssemblyProgram Fixture(string name) => new Assembler().Assemble(
-        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", name + ".asm")));
+        File.ReadAllText(Path.Combine(Directories.TestData.FullName, name + ".asm")));
 
     internal static Machine Load(string source)
     {
