@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <!--Empty RootNamespace does not work in Directory.Build.props, so put it in this file as a workaround-->
+    <RootNamespace></RootNamespace>
+    <IsTestProject Condition="'$(IsTestProject)' == ''">true</IsTestProject>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(IsTestProject)">
+    <TestResultsDirectory>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), .., TestResults, $(Configuration)))</TestResultsDirectory>
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-trx --results-directory $(TestResultsDirectory)</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+  <ItemGroup Condition="$(IsTestProject)">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+</Project>

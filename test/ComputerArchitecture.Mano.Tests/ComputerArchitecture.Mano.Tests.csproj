@@ -7,7 +7,6 @@
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <ProjectReference Include="../../src/ComputerArchitecture.Mano/ComputerArchitecture.Mano.csproj" />
     <ProjectReference Include="../../src/ComputerArchitecture.Mano.Cli/ComputerArchitecture.Mano.Cli.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>

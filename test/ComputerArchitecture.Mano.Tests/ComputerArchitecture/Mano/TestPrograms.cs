@@ -1,4 +1,4 @@
-namespace ComputerArchitecture.Mano.Tests;
+namespace ComputerArchitecture.Mano;
 
 internal static class TestPrograms
 {

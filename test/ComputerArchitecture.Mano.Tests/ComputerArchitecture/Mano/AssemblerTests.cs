@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace ComputerArchitecture.Mano.Tests;
+namespace ComputerArchitecture.Mano;
 
 public sealed class AssemblerTests
 {

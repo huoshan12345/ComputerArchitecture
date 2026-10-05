@@ -1,7 +1,7 @@
 using System.Numerics;
 using Xunit;
 
-namespace ComputerArchitecture.Mano.Tests;
+namespace ComputerArchitecture.Mano;
 
 public sealed class ProgramTests
 {
