@@ -10,7 +10,7 @@ public sealed class AssemblerTests
     [InlineData("BUN", 0x4123)] [InlineData("BSA", 0x5123)] [InlineData("ISZ", 0x6123)]
     public void MemoryEncodings(string mnemonic, int expected)
     {
-        var program = new Assembler().Assemble($"ORG 100\n{mnemonic} 123\n{mnemonic} 123 I\nEND");
+        var program = Assembler.Assemble($"ORG 100\n{mnemonic} Assembler.Assemble123\n{mnemonic} 123 I\nEND");
         Assert.Equal(expected, program.GetWord(0x100));
         Assert.Equal(expected | 0x8000, program.GetWord(0x101));
     }
@@ -25,13 +25,15 @@ public sealed class AssemblerTests
     [InlineData("INP", 0xF800)] [InlineData("OUT", 0xF400)]
     [InlineData("SKI", 0xF200)] [InlineData("SKO", 0xF100)]
     [InlineData("ION", 0xF080)] [InlineData("IOF", 0xF040)]
-    public void FixedEncodings(string mnemonic, int expected) =>
-        Assert.Equal(expected, new Assembler().Assemble(mnemonic).GetWord(0));
+    public void FixedEncodings(string mnemonic, int expected)
+    {
+        Assert.Equal(expected, Assembler.Assemble(mnemonic).GetWord(0));
+    }
 
     [Fact]
     public void ForwardReferencesCommentsAndHexLookingLabels()
     {
-        var program = new Assembler().Assemble("/ comment\norg 100\nlda a16 / forward label\nhlt\nA16, dec -3\nend\nINVALID");
+        var program = Assembler.Assemble("/ comment\norg 100\nlda a16 / forward label\nhlt\nA16, dec -3\nend\nINVALID");
         Assert.Equal(0x100, program.EntryPoint);
         Assert.Equal(0x102, program.Symbols["a16"]);
         Assert.Equal(0x2102, program.GetWord(0x100));
@@ -77,7 +79,7 @@ public sealed class AssemblerTests
     [InlineData("END", 1)] [InlineData("ORG 0x100", 1)]
     public void InvalidSourceHasLineDiagnostics(string source, int line)
     {
-        var error = Assert.Throws<AssemblyException>(() => new Assembler().Assemble(source));
+        var error = Assert.Throws<AssemblyException>(() => Assembler.Assemble(source));
         Assert.Equal(line, error.LineNumber);
         Assert.Contains($"Line {line}:", error.Message);
     }
@@ -85,7 +87,7 @@ public sealed class AssemblerTests
     [Fact]
     public void BoundariesDefaultOriginAndDefensiveImageCopy()
     {
-        var program = new Assembler().Assemble("DEC -32768\nDEC 32767\nORG FFF\nHEX FFFF");
+        var program = Assembler.Assemble("DEC -32768\nDEC 32767\nORG FFF\nHEX FFFF");
         Assert.Equal(0, program.EntryPoint);
         Assert.Equal(0x8000, program.GetWord(0));
         Assert.Equal(0x7FFF, program.GetWord(1));

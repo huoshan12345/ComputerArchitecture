@@ -49,27 +49,46 @@ try
         }
     }
 
-    var program = new Assembler().Assemble(File.ReadAllText(path));
+    var program = Assembler.Assemble(File.ReadAllText(path));
     var machine = new Machine();
     machine.Load(program, entry);
-    if (outputNotReady) machine.SetOutputReady(false);
+
+    if (outputNotReady)
+        machine.SetOutputReady(false);
+
     machine.QueueInput(input);
+
     using var cancellation = new CancellationTokenSource();
-    ConsoleCancelEventHandler handler = (_, e) => { e.Cancel = true; cancellation.Cancel(); };
+    ConsoleCancelEventHandler handler = (_, e) =>
+    {
+        e.Cancel = true;
+        // ReSharper disable once AccessToDisposedClosure
+        cancellation.Cancel();
+    };
     Console.CancelKeyPress += handler;
     RunResult result;
     try
     {
-        result = machine.Run(maxSteps, cancellation.Token, trace ? step =>
-            Console.WriteLine($"{step.Kind,-14} @{step.Address:X3} {(step.Instruction is ushort word ? word.ToString("X4") : "----")} PC={step.State.PC:X3} AC={step.State.AC:X4} E={(step.State.E ? 1 : 0)}") : null);
+        result = machine.Run(maxSteps, trace ? Trace : null, cancellation.Token);
     }
-    finally { Console.CancelKeyPress -= handler; }
+    finally
+    {
+        Console.CancelKeyPress -= handler;
+    }
 
     Console.WriteLine($"{result.Reason}: steps={result.Steps}, instructions={result.Instructions}, interrupts={result.Interrupts}");
     Console.WriteLine($"PC={machine.PC:X3} AC={machine.AC:X4} E={(machine.E ? 1 : 0)} I={(machine.I ? 1 : 0)} SC=0000 IEN={(machine.IEN ? 1 : 0)} FGI={(machine.FGI ? 1 : 0)} FGO={(machine.FGO ? 1 : 0)}");
     Console.WriteLine($"Output hex: {Convert.ToHexString(machine.Output.ToArray())}");
     Console.WriteLine($"Output text (escaped): {System.Text.Json.JsonSerializer.Serialize(Encoding.Latin1.GetString(machine.Output.ToArray()))}");
     return result.Reason switch { StopReason.Halted => 0, StopReason.StepLimit => 2, _ => 3 };
+
+    static void Trace(StepResult step)
+    {
+        Console.WriteLine($"{step.Kind,-14} @{step.Address:X3} {(step.Instruction is ushort word ? word.ToString("X4") : "----")} " +
+                          $"PC={step.State.PC:X3} " +
+                          $"AC={step.State.AC:X4} " +
+                          $"E={(step.State.E ? 1 : 0)}");
+    }
 }
 catch (Exception exception) when (exception is AssemblyException or InvalidInstructionException or
     ArgumentException or FormatException or OverflowException or IOException or UnauthorizedAccessException)

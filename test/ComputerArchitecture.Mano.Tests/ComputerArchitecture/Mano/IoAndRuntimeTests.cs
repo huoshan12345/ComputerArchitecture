@@ -128,7 +128,7 @@ public sealed class IoAndRuntimeTests
     [Fact]
     public void HaltAndReloadResetEverythingIncludingDevices()
     {
-        var program = new Assembler().Assemble("OUT\nHLT");
+        var program = Assembler.Assemble("OUT\nHLT");
         var machine = new Machine();
         machine.Load(program);
         machine.AC = 65;

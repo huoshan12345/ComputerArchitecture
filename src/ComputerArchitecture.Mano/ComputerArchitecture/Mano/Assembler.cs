@@ -7,9 +7,10 @@ namespace ComputerArchitecture.Mano;
 public sealed class Assembler
 {
     private sealed record Line(int Number, string Source, string? Label, string Operation, string[] Operands);
+
     private sealed record Emission(int Address, Line Line);
 
-    public AssemblyProgram Assemble(string source)
+    public static AssemblyProgram Assemble(string source)
     {
         ArgumentNullException.ThrowIfNull(source);
         var symbols = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -69,7 +70,7 @@ public sealed class Assembler
             {
                 string operand = line.Operands[0];
                 int address = symbols.TryGetValue(operand, out int symbolAddress)
-                    ? symbolAddress : Address(operand, line);
+                    ? symbolAddress : GetAddress(operand, line);
                 word = (ushort)(opcode | address | (line.Operands.Length == 2 ? 0x8000 : 0));
             }
             else if (InstructionSet.Fixed.TryGetValue(line.Operation, out ushort code)) word = code;
@@ -116,10 +117,12 @@ public sealed class Assembler
         return new Line(number, source, label, tokens.Length == 0 ? "" : tokens[0].ToUpperInvariant(), tokens.Skip(1).ToArray());
     }
 
-    private static int Address(string token, Line line)
+    private static int GetAddress(string token, Line line)
     {
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (!Regex.IsMatch(token, "^[0-9A-Fa-f]+$", RegexOptions.CultureInvariant))
             throw Error(line, $"Undefined symbol or invalid address '{token}'.");
+
         return Hex(token, 0xFFF, line);
     }
 

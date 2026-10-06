@@ -385,7 +385,7 @@ public sealed class ReviewNotesTests
 
     private static (AssemblyProgram Program, Machine Machine) Load(string source)
     {
-        var program = new Assembler().Assemble(source);
+        var program = Assembler.Assemble(source);
         var machine = new Machine();
         machine.Load(program);
         return (program, machine);

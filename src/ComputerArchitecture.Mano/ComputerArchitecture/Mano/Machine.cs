@@ -4,15 +4,20 @@ namespace ComputerArchitecture.Mano;
 public sealed class Machine
 {
     public const int MemorySize = 4096;
-    private readonly ushort[] memory = new ushort[MemorySize];
-    private readonly Queue<byte> input = new();
-    private readonly List<byte> output = [];
-    private int pc;
-    private bool outputPending;
+    private readonly ushort[] _memory = new ushort[MemorySize];
+    private readonly Queue<byte> _input = new();
+    private readonly List<byte> _output = [];
+    private bool _outputPending;
 
     public ushort AC { get; set; }
     public bool E { get; set; }
-    public int PC { get => pc; set => pc = ValidateAddress(value); }
+
+    public int PC
+    {
+        get;
+        set => field = ValidateAddress(value);
+    }
+
     public int AR { get; private set; }
     public ushort IR { get; private set; }
     public ushort DR { get; private set; }
@@ -27,24 +32,24 @@ public sealed class Machine
     public bool AutoCompleteOutput { get; set; } = true;
     public long InstructionsExecuted { get; private set; }
     public long InterruptsEntered { get; private set; }
-    public IReadOnlyList<byte> Output => output.AsReadOnly();
+    public IReadOnlyList<byte> Output => _output.AsReadOnly();
     public MachineState State => new(AC, E, PC, AR, IR, DR, I, INPR, OUTR, FGI, FGO, IEN, R, Running);
 
     public ushort this[int address]
     {
-        get => memory[ValidateAddress(address)];
-        set => memory[ValidateAddress(address)] = value;
+        get => _memory[ValidateAddress(address)];
+        set => _memory[ValidateAddress(address)] = value;
     }
 
     public void Load(AssemblyProgram program, int? entryPoint = null)
     {
         ArgumentNullException.ThrowIfNull(program);
         int entry = ValidateAddress(entryPoint ?? program.EntryPoint);
-        program.GetMemoryImage().CopyTo(memory, 0);
-        input.Clear();
-        output.Clear();
+        program.GetMemoryImage().CopyTo(_memory, 0);
+        _input.Clear();
+        _output.Clear();
         AC = IR = DR = 0;
-        E = I = FGI = IEN = R = outputPending = false;
+        E = I = FGI = IEN = R = _outputPending = false;
         AR = 0;
         INPR = OUTR = 0;
         PC = entry;
@@ -55,7 +60,7 @@ public sealed class Machine
     public void QueueInput(IEnumerable<byte> bytes)
     {
         ArgumentNullException.ThrowIfNull(bytes);
-        foreach (byte value in bytes) input.Enqueue(value);
+        foreach (byte value in bytes) _input.Enqueue(value);
     }
 
     /// <summary>Offer one input byte without overwriting an unread character.</summary>
@@ -70,7 +75,7 @@ public sealed class Machine
     public void SetOutputReady(bool ready)
     {
         FGO = ready;
-        outputPending = false;
+        _outputPending = false;
     }
 
     public StepResult Step()
@@ -79,7 +84,7 @@ public sealed class Machine
         DeviceBoundary();
         if (R)
         {
-            memory[0] = (ushort)PC;
+            _memory[0] = (ushort)PC;
             AR = 0;
             PC = 1;
             IEN = R = false;
@@ -91,14 +96,14 @@ public sealed class Machine
         bool request = IEN && (FGI || FGO);
         int address = PC;
         AR = PC;
-        IR = memory[AR];
+        IR = _memory[AR];
         PC = Next(PC);
         I = (IR & 0x8000) != 0;
         AR = IR & 0x0FFF;
         int opcode = (IR >> 12) & 7;
         if (opcode != 7)
         {
-            if (I) AR = memory[AR] & 0x0FFF;
+            if (I) AR = _memory[AR] & 0x0FFF;
             ExecuteMemory(opcode);
         }
         else ExecuteFixed(address);
@@ -107,21 +112,29 @@ public sealed class Machine
         return new(StepKind.Instruction, address, IR, State);
     }
 
-    public RunResult Run(int maxSteps = 1_000_000, CancellationToken cancellationToken = default,
-        Action<StepResult>? trace = null)
+    public RunResult Run(
+        int maxSteps = 1_000_000,
+        Action<StepResult>? trace = null,
+        CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxSteps);
+
         long instructions = InstructionsExecuted;
         long interrupts = InterruptsEntered;
         int steps = 0;
         while (Running && steps < maxSteps)
         {
-            if (cancellationToken.IsCancellationRequested) return Result(StopReason.Cancelled);
+            if (cancellationToken.IsCancellationRequested)
+                return Result(StopReason.Cancelled);
+
             StepResult step = Step();
             steps++;
             trace?.Invoke(step);
         }
-        return Result(Running ? StopReason.StepLimit : StopReason.Halted);
+
+        return Result(Running
+            ? StopReason.StepLimit
+            : StopReason.Halted);
 
         RunResult Result(StopReason reason) => new(reason, steps,
             InstructionsExecuted - instructions, InterruptsEntered - interrupts, State);
@@ -129,11 +142,13 @@ public sealed class Machine
 
     private void DeviceBoundary()
     {
-        if (!FGI && input.TryDequeue(out byte value)) TryOfferInput(value);
-        if (AutoCompleteOutput && outputPending)
+        if (!FGI && _input.TryDequeue(out byte value)) 
+            TryOfferInput(value);
+
+        if (AutoCompleteOutput && _outputPending)
         {
             FGO = true;
-            outputPending = false;
+            _outputPending = false;
         }
     }
 
@@ -141,20 +156,20 @@ public sealed class Machine
     {
         switch (opcode)
         {
-            case 0: DR = memory[AR]; AC &= DR; break;
+            case 0: DR = _memory[AR]; AC &= DR; break;
             case 1:
-                DR = memory[AR];
+                DR = _memory[AR];
                 int sum = AC + DR;
                 AC = unchecked((ushort)sum);
                 E = sum > ushort.MaxValue;
                 break;
-            case 2: DR = memory[AR]; AC = DR; break;
-            case 3: memory[AR] = AC; break;
+            case 2: DR = _memory[AR]; AC = DR; break;
+            case 3: _memory[AR] = AC; break;
             case 4: PC = AR; break;
-            case 5: memory[AR] = (ushort)PC; AR = Next(AR); PC = AR; break;
+            case 5: _memory[AR] = (ushort)PC; AR = Next(AR); PC = AR; break;
             case 6:
-                DR = unchecked((ushort)(memory[AR] + 1));
-                memory[AR] = DR;
+                DR = unchecked((ushort)(_memory[AR] + 1));
+                _memory[AR] = DR;
                 if (DR == 0) PC = Next(PC);
                 break;
         }
@@ -187,9 +202,9 @@ public sealed class Machine
             case 0xF800: AC = (ushort)((AC & 0xFF00) | INPR); FGI = false; break;
             case 0xF400:
                 OUTR = (byte)AC;
-                output.Add(OUTR);
+                _output.Add(OUTR);
                 FGO = false;
-                outputPending = true;
+                _outputPending = true;
                 break;
             case 0xF200: if (FGI) PC = Next(PC); break;
             case 0xF100: if (FGO) PC = Next(PC); break;
@@ -200,9 +215,13 @@ public sealed class Machine
     }
 
     private static int Next(int address) => (address + 1) & 0xFFF;
+
     internal static int ValidateAddress(int address)
     {
-        if (address is < 0 or >= MemorySize) throw new ArgumentOutOfRangeException(nameof(address), "Address must be 000-FFF.");
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (address is < 0 or >= MemorySize) 
+            throw new ArgumentOutOfRangeException(nameof(address), "Address must be 000-FFF.");
+
         return address;
     }
 }
