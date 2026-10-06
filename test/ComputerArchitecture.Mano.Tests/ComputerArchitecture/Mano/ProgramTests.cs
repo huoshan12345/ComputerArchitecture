@@ -72,9 +72,9 @@ public sealed class ProgramTests
         machine.Load(TestPrograms.Fixture("branch-trace"));
         var trace = new List<StepResult>();
         machine.Run(cancellationToken: TestContext.Current.CancellationToken, trace: trace.Add);
-        Assert.Equal(new[] {0xA10,0xA11,0xA12,0xA14,0xA15,0xA13}, trace.Select(x => x.Address));
+        Assert.Equal([0xA10,0xA11,0xA12,0xA14,0xA15,0xA13], trace.Select(x => x.Address));
         Assert.Equal(new ushort[] {0,0xC1A5,0xC1A5,0x8104,0x8104,0x8104}, trace.Select(x => x.State.AC));
-        Assert.Equal(new[] {0xA11,0xA12,0xA14,0xA15,0xA13,0xA14}, trace.Select(x => x.State.PC));
+        Assert.Equal([0xA11,0xA12,0xA14,0xA15,0xA13,0xA14], trace.Select(x => x.State.PC));
     }
 
     [Theory]

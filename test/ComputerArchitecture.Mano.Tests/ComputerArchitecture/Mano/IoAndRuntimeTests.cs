@@ -10,7 +10,7 @@ public sealed class IoAndRuntimeTests
         var machine = TestPrograms.Load("SKI\nHLT\nINP\nINP\nHLT");
         machine.AC = 0xAB00;
         machine.E = true;
-        machine.QueueInput(new byte[] {0x71,0xFF});
+        machine.QueueInput([0x71,0xFF]);
         machine.Step();
         Assert.Equal(2, machine.PC);
         Assert.Equal(0x71, machine.INPR);
@@ -28,9 +28,9 @@ public sealed class IoAndRuntimeTests
     {
         var machine = new Machine();
         machine.Load(TestPrograms.Fixture("polling-echo"));
-        machine.QueueInput(new byte[] {65,66,255});
+        machine.QueueInput([65,66,255]);
         Assert.Equal(StopReason.Halted, machine.Run(100, cancellationToken: TestContext.Current.CancellationToken).Reason);
-        Assert.Equal(new byte[] {65,66,255}, machine.Output);
+        Assert.Equal([65,66,255], machine.Output);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public sealed class IoAndRuntimeTests
         machine.Step();
         Assert.Equal(0x71, machine.OUTR);
         Assert.False(machine.FGO);
-        Assert.Equal(new byte[] {0x71}, machine.Output);
+        Assert.Equal([0x71], machine.Output);
         machine.Step();
         Assert.Equal(2, machine.PC);
         machine.SetOutputReady(true);
@@ -61,7 +61,7 @@ public sealed class IoAndRuntimeTests
         machine.SetOutputReady(false);
         machine.AC = 0xBE00;
         machine.E = true;
-        machine.QueueInput(new byte[] {0x71});
+        machine.QueueInput([0x71]);
         machine.Step(); // ION: old IEN was false, so no request latched yet.
         Assert.True(machine.IEN);
         Assert.False(machine.R);
@@ -91,7 +91,7 @@ public sealed class IoAndRuntimeTests
     public void DisabledInterruptStillPermitsInputAndPendingFlagPersists()
     {
         var machine = TestPrograms.Load("IOF\nSKI\nHLT\nINP\nHLT");
-        machine.QueueInput(new byte[] {0x71});
+        machine.QueueInput([0x71]);
         machine.Step();
         Assert.True(machine.FGI);
         Assert.False(machine.IEN);
