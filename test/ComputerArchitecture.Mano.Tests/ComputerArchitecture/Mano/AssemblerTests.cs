@@ -10,7 +10,7 @@ public sealed class AssemblerTests
     [InlineData("BUN", 0x4123)] [InlineData("BSA", 0x5123)] [InlineData("ISZ", 0x6123)]
     public void MemoryEncodings(string mnemonic, int expected)
     {
-        var program = Assembler.Assemble($"ORG 100\n{mnemonic} Assembler.Assemble123\n{mnemonic} 123 I\nEND");
+        var program = Assembler.Assemble($"ORG 100\n{mnemonic} 123\n{mnemonic} 123 I\nEND");
         Assert.Equal(expected, program.GetWord(0x100));
         Assert.Equal(expected | 0x8000, program.GetWord(0x101));
     }
